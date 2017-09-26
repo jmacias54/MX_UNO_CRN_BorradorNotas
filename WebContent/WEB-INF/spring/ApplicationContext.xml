@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+	
+	<mvc:annotation-driven/>
+	
+	<!-- busca los @Controller en esta ruta -->
+	<context:component-scan base-package="mx.com.amx.unotv.uno.crn.cleaner"/>
+	
+	<!-- declara de donde se van a tomar los placeholders $(nombre) -->
+	<bean  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:general.properties</value>
+		</property>
+	</bean>
+	
+	<bean id="proceso" class="mx.com.amx.unotv.uno.crn.cleaner.proceso.Proceso" >
+	</bean>
+	
+	<bean id="cronProceso"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
+		p:concurrent="false" 
+		p:targetObject-ref="proceso" 
+		p:targetMethod="depuraNotas" />
+	
+	<!-- p:cronExpression="0 0/1 * * * ? -->
+	<bean id="procesoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"
+    	p:jobDetail-ref="cronProceso" 
+    	p:startDelay="10000"
+    	p:cronExpression="0 0/3 * * * ?" />
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+			p:waitForJobsToCompleteOnShutdown="true" >
+	    <property name="triggers">
+	        <list>
+	           	 <ref bean="procesoTrigger" />	            	
+	        </list>
+	    </property>		    		    
+	</bean>
+	
+	<!-- log4j setting -->
+	<!-- Configuracion de log -->
+	<bean id="log4jInitialization" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass" value="org.springframework.util.Log4jConfigurer" />
+		<property name="targetMethod" value="initLogging" />
+		<property name="arguments">
+			<list>
+				<value>${log4j.properties.location}</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>
+
