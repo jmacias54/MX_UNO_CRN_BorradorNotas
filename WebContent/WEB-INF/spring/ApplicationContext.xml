@@ -36,7 +36,7 @@
 	<bean id="procesoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"
     	p:jobDetail-ref="cronProceso" 
     	p:startDelay="10000"
-    	p:cronExpression="0 0/3 * * * ?" />
+    	p:cronExpression="0 0/1 * * * ?" />
 
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
 			p:waitForJobsToCompleteOnShutdown="true" >
